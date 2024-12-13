@@ -42,7 +42,7 @@ pipeline {
                         --network backend \
                         -p 5000:5000 \
                         -e DB_HOSTNAME=${env.DB_HOSTNAME} \
-                        -e DB_USER=${DB_USERNAME} \
+                        -e DB_USER=${DB_USER} \
                         -e DB_PASSWORD=${DB_PASSWORD} \
                         -e DB_NAME=${env.DB_NAME} \
                         -e API_KEY=${env.API_KEY}
