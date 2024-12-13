@@ -45,7 +45,7 @@ pipeline {
                         -e DB_USER=${DB_USER} \
                         -e DB_PASSWORD=${DB_PASSWORD} \
                         -e DB_NAME=${env.DB_NAME} \
-                        -e API_KEY=${env.API_KEY}
+                        -e API_KEY=${env.API_KEY} \
                         ${DOCKER_IMAGE}
                     """
                     }
