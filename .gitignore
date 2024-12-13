@@ -1,3 +1,4 @@
 schema.sql
 __pycache__
 flask-session
+github.token
