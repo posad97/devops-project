@@ -104,7 +104,7 @@ def buy():
             return apology("Symbol does not exist", ticker_data["status_code"])
         
         # Variable stores the number of shares user wants to buy
-        shares_to_buy = int(request.form.get("shares"))
+        shares_to_buy = request.form.get("shares")
 
         # Ensure amount of shares provided by user is a valid number
         if not shares_to_buy.isdigit():
