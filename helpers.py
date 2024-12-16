@@ -59,11 +59,13 @@ def lookup(symbol):
     try:
         ticker_iex = response_iex.json()[0]
         ticker_metadata = response_metadata.json()
+        status_code = response_iex.status_code
 
         return {
             "name": ticker_metadata["name"],
             "price": float(ticker_iex["last"]),
-            "symbol": ticker_iex["ticker"]
+            "symbol": ticker_iex["ticker"],
+            "status_code": status_code
         }
     except (KeyError, TypeError, ValueError):
         return None
@@ -79,9 +81,9 @@ def db_execute(query, data=None):
     try:
         conn = mysql.connector.connect(
             host = os.environ.get("DB_HOSTNAME"),      # Name of the MySQL container
-            user = os.environ.get("DB_USER"),      # MySQL user
+            user = os.environ.get("DB_USER"),          # MySQL user
             password = os.environ.get("DB_PASSWORD"),  # Root password
-            database = os.environ.get("DB_NAME")     # Database name
+            database = os.environ.get("DB_NAME")       # Database name
         )
 
         cursor = conn.cursor(dictionary=True)
