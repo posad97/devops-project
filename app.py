@@ -129,7 +129,7 @@ def buy():
         user_cash = rows[0]["cash"]
 
         # Total price for the number of shares user wants to buy
-        total_shares_price = price * shares_to_buy
+        total_shares_price = price * float(shares_to_buy)
 
         # Check if user has enough cash to buy this amount of shares
         if user_cash < total_shares_price:
