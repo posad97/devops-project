@@ -60,8 +60,18 @@ def index():
     # Iterate over each row for the query response
     for row in rows:
 
+        # Get ticker from row output
+        ticker = row['symbol']
+
+        # Fetch ticker data from API
+        ticker_data = lookup(ticker)
+
+        # If fetch from API failed return an apology with the response status code
+        if ticker_data == None:
+            return apology("Symbol does not exist", ticker_data["status_code"])
+
         # Check the current stock price
-        cur_price = lookup(row['symbol'])['price']
+        cur_price = ticker_data["price"]
 
         # Calculate the dividends based on the current price
         row['total'] = row['shares'] * cur_price
@@ -86,27 +96,29 @@ def buy():
         # Checks for valid user input
         if not request.form.get("symbol"):
             return apology("Symbol field should not be blank", 400)
-
-        if lookup(request.form.get("symbol")) == None:
-            return apology("Symbol does not exist", 400)
-
-        if not request.form.get("shares").isdigit():
-            return apology("Shares must be whole number", 400)
-
-        if float(request.form.get("shares")) % 1 != 0:
-            return apology("Shares must be whole number", 400)
-
-        if int(request.form.get("shares")) < 1:
-            return apology("Please provide a valid quantity", 400)
-
+        
         # Assign the ticker variable to the symbol provided by user
         ticker = request.form.get("symbol")
 
+        # Fetch ticker data from API
+        ticker_data = lookup(ticker)
+
+        # If fetch from API failed return an apology with the response status code
+        if ticker_data == None:
+            return apology("Symbol does not exist", ticker_data["status_code"])
+        
         # Variable stores the number of shares user wants to buy
         shares_to_buy = int(request.form.get("shares"))
 
-        # Fetch ticker data from API
-        ticker_data = lookup(ticker)
+        # Ensure amount of shares provided by user is a valid number
+        if not shares_to_buy.isdigit():
+            return apology("Shares must be whole number", 400)
+
+        if float(shares_to_buy) % 1 != 0:
+            return apology("Shares must be whole number", 400)
+
+        if int(shares_to_buy) < 1:
+            return apology("Please provide a valid quantity", 400)
 
         # Variable stores current stock price fetched from API
         price = ticker_data['price']
@@ -241,8 +253,9 @@ def quote():
         # Fetch ticker data from API
         ticker_data = lookup(ticker)
 
+        # If fetch from API failed return an apology with the response status code
         if ticker_data == None:
-            return apology("invalid ticker symbol", 400)
+            return apology("invalid ticker symbol", ticker_data["status_code"])
 
         # Returns the page with populated information about the company stocks price
         return render_template("quoted.html", company=ticker_data)
@@ -328,6 +341,10 @@ def sell():
         
         # Fetch ticker data from API
         ticker_data = lookup(ticker)
+
+        # If fetch from API failed return an apology with the response status code
+        if ticker_data == None:
+            return apology("invalid ticker symbol", ticker_data["status_code"])
 
         # Variable stores current stock price fetched from API
         price = ticker_data['price']
