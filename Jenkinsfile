@@ -36,18 +36,28 @@ pipeline {
                     
                     // Pull the image from Docker Hub and run the new container
                     withCredentials([usernamePassword(credentialsId: DB_CREDENTIALS_ID, passwordVariable: 'DB_PASSWORD', usernameVariable: 'DB_USER')]) {
-                        sh """
+
+                        withEnv([
+                            "DB_HOSTNAME=${env.DB_HOSTNAME}",
+                            "DB_USER=${DB_USER}",
+                            "DB_PASSWORD=${DB_PASSWORD}",
+                            "DB_NAME=${env.DB_NAME}",
+                            "API_KEY=${env.API_KEY}"
+                        ]) {
+                            sh '''
                         docker run -d \
                         --name ${APP_CONTAINER_NAME} \
                         --network backend \
                         -p 5000:5000 \
-                        -e DB_HOSTNAME=${env.DB_HOSTNAME} \
-                        -e DB_USER=${DB_USER} \
-                        -e DB_PASSWORD=${DB_PASSWORD} \
-                        -e DB_NAME=${env.DB_NAME} \
-                        -e API_KEY=${env.API_KEY} \
+                        -e DB_HOSTNAME=$DB_HOSTNAME \
+                        -e DB_USER=$DB_USER \
+                        -e DB_PASSWORD=$DB_PASSWORD \
+                        -e DB_NAME=$DB_NAME \
+                        -e API_KEY=$API_KEY \
                         ${DOCKER_IMAGE}
-                    """
+                    '''
+                        }
+                        
                     }
                     
                 }
