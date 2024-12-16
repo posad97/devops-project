@@ -50,16 +50,18 @@ def lookup(symbol):
         metadata_url = f"https://api.tiingo.com/tiingo/daily/{urllib.parse.quote_plus(symbol)}"
         response_iex = requests.get(iex_url, headers=headers)
         response_metadata = requests.get(metadata_url, headers=headers)
+        status_code = response_metadata.status_code
         response_iex.raise_for_status()
         response_metadata.raise_for_status()
     except requests.RequestException:
-        return None
+        return {
+            "status_code": status_code 
+        }
 
     # Parse response
     try:
         ticker_iex = response_iex.json()[0]
         ticker_metadata = response_metadata.json()
-        status_code = response_iex.status_code
 
         return {
             "name": ticker_metadata["name"],
@@ -68,7 +70,9 @@ def lookup(symbol):
             "status_code": status_code
         }
     except (KeyError, TypeError, ValueError):
-        return None
+        return {
+            "status_code": 400 
+        }
 
 
 #  DB interaction routine

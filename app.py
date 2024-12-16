@@ -66,10 +66,6 @@ def index():
         # Fetch ticker data from API
         ticker_data = lookup(ticker)
 
-        # If fetch from API failed return an apology with the response status code
-        if ticker_data == None:
-            return apology("Symbol does not exist", ticker_data["status_code"])
-
         # Check the current stock price
         cur_price = ticker_data["price"]
 
@@ -103,8 +99,8 @@ def buy():
         # Fetch ticker data from API
         ticker_data = lookup(ticker)
 
-        # If fetch from API failed return an apology with the response status code
-        if ticker_data == None:
+        # If fetch from API failed - return an apology with the response status code
+        if ticker_data["status_code"] != 200:
             return apology("Symbol does not exist", ticker_data["status_code"])
         
         # Variable stores the number of shares user wants to buy
@@ -253,9 +249,9 @@ def quote():
         # Fetch ticker data from API
         ticker_data = lookup(ticker)
 
-        # If fetch from API failed return an apology with the response status code
-        if ticker_data == None:
-            return apology("invalid ticker symbol", ticker_data["status_code"])
+        # If fetch from API failed - return an apology with the response status code
+        if ticker_data["status_code"] != 200:
+            return apology("Symbol does not exist", ticker_data["status_code"])
 
         # Returns the page with populated information about the company stocks price
         return render_template("quoted.html", company=ticker_data)
@@ -342,9 +338,9 @@ def sell():
         # Fetch ticker data from API
         ticker_data = lookup(ticker)
 
-        # If fetch from API failed return an apology with the response status code
-        if ticker_data == None:
-            return apology("invalid ticker symbol", ticker_data["status_code"])
+        # If fetch from API failed - return an apology with the response status code
+        if ticker_data["status_code"] != 200:
+            return apology("Symbol does not exist", ticker_data["status_code"])
 
         # Variable stores current stock price fetched from API
         price = ticker_data['price']
