@@ -13,7 +13,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 // Build the Docker image
-                sh "docker build -t ${DOCKER_IMAGE} ."
+                sh 'docker build -t ${DOCKER_IMAGE} .'
             }
         }
         stage('Push to Docker Hub') {
@@ -21,7 +21,7 @@ pipeline {
                 script {
                     // Login to Docker Hub using credentials from Jenkins
                     withCredentials([usernamePassword(credentialsId: DOCKER_CREDENTIALS_ID, passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
-                        sh "docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}"
+                        sh 'docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}'
                     }
                 }
 
@@ -32,11 +32,11 @@ pipeline {
             steps {
                 script {
                     // Stop and remove any existing container with the same name
-                    sh "docker rm -f ${APP_CONTAINER_NAME} || true"
+                    sh 'docker rm -f ${APP_CONTAINER_NAME} || true'
                     
                     // Pull the image from Docker Hub and run the new container
                     withCredentials([usernamePassword(credentialsId: DB_CREDENTIALS_ID, passwordVariable: 'DB_PASSWORD', usernameVariable: 'DB_USER')]) {
-                        sh """
+                        sh '''
                         docker run -d \
                         --name ${APP_CONTAINER_NAME} \
                         --network backend \
@@ -47,7 +47,7 @@ pipeline {
                         -e DB_NAME=${env.DB_NAME} \
                         -e API_KEY=${env.API_KEY} \
                         ${DOCKER_IMAGE}
-                    """
+                    '''
                     }
                     
                 }
