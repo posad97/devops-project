@@ -5,9 +5,8 @@ pipeline {
         APP_CONTAINER_NAME = 'trading-app'
         DOCKER_CREDENTIALS_ID = 'dockerhub-credentials'
         DB_CREDENTIALS_ID = 'db-credentials'
-        DB_HOSTNAME = credentials('db-hostname')
-        DB_NAME = credentials('db-name')
-        API_KEY = credentials('api-key')
+        DOCKER_NETWORK = 'backend'
+        APP_PORT = '5000'
     }
     stages {
         stage('Build Docker Image') {
@@ -25,7 +24,7 @@ pipeline {
                     }
                 }
 
-                sh "docker push ${DOCKER_IMAGE}"
+                sh 'docker push ${DOCKER_IMAGE}'
             }
         }
         stage('Run Container from Docker Hub') {
@@ -35,29 +34,24 @@ pipeline {
                     sh 'docker rm -f ${APP_CONTAINER_NAME} || true'
                     
                     // Pull the image from Docker Hub and run the new container
-                    withCredentials([usernamePassword(credentialsId: DB_CREDENTIALS_ID, passwordVariable: 'DB_PASSWORD', usernameVariable: 'DB_USER')]) {
+                    withCredentials([usernamePassword(credentialsId: DB_CREDENTIALS_ID, passwordVariable: 'DB_PASSWORD', usernameVariable: 'DB_USER'),
+                    string(credentialsId: 'api-key', variable: 'API_KEY'),
+                    string(credentialsId: 'db-name', variable: 'DB_NAME'),
+                    string(credentialsId: 'db-hostname', variable: 'DB_HOSTNAME')]) {
 
-                        withEnv([
-                            "DB_HOSTNAME=${env.DB_HOSTNAME}",
-                            "DB_USER=${DB_USER}",
-                            "DB_PASSWORD=${DB_PASSWORD}",
-                            "DB_NAME=${env.DB_NAME}",
-                            "API_KEY=${env.API_KEY}"
-                        ]) {
-                            sh '''
+                        sh """
                         docker run -d \
                         --name ${APP_CONTAINER_NAME} \
-                        --network backend \
-                        -p 5000:5000 \
-                        -e DB_HOSTNAME=$DB_HOSTNAME \
-                        -e DB_USER=$DB_USER \
-                        -e DB_PASSWORD=$DB_PASSWORD \
-                        -e DB_NAME=$DB_NAME \
-                        -e API_KEY=$API_KEY \
+                        --network ${DOCKER_NETWORK} \
+                        -p ${APP_PORT}:${APP_PORT} \
+                        -e DB_HOSTNAME=${DB_HOSTNAME} \
+                        -e DB_USER=${DB_USER} \
+                        -e DB_PASSWORD=${DB_PASSWORD} \
+                        -e DB_NAME=${DB_NAME} \
+                        -e API_KEY=${API_KEY} \
                         ${DOCKER_IMAGE}
-                    '''
-                        }
-                        
+                    """
+
                     }
                     
                 }
