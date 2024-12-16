@@ -2,3 +2,4 @@ schema.sql
 __pycache__
 flask-session
 github.token
+remove_image.sh

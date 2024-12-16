@@ -2,3 +2,4 @@ __pycache__
 flask-session
 Dockerfile
 github.token
+remove_image.sh
