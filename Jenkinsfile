@@ -22,7 +22,7 @@ pipeline {
                 script {
                     def imageTag = "${env.APP_VERSION}"
                     env.DOCKER_IMAGE = "${IMAGE_NAME}:${imageTag}"
-                    sh 'docker build -t ${env.DOCKER_IMAGE} .'
+                    sh 'docker build -t ${DOCKER_IMAGE} .'
                 }
             }
         }
@@ -32,7 +32,7 @@ pipeline {
                 script {
                     withCredentials([usernamePassword(credentialsId: DOCKER_CREDENTIALS_ID, passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
                         sh 'docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}'
-                        sh 'docker push ${env.DOCKER_IMAGE}'
+                        sh 'docker push ${DOCKER_IMAGE}'
                     }
                 }
             }
@@ -66,7 +66,7 @@ pipeline {
                         secret.trading.data.MYSQL_USER=${MYSQL_USER},\
                         secret.mysql.data.MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD},\
                         secret.mysql.data.MYSQL_DATABASE=${MYSQL_DATABASE},\
-                        deployment.trading.containers.image=${env.DOCKER_IMAGE}
+                        deployment.trading.containers.image=${DOCKER_IMAGE}
                         """
                     }
                 }
