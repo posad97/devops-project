@@ -3,6 +3,7 @@ pipeline {
     environment {
       IMAGE_NAME = 'posad97/trading-app'
       DOCKER_CREDENTIALS_ID = 'dockerhub-credentials'
+      DB_CREDENTIALS_ID = 'db-credentials'
       CLUSTER_NAME = 'zonal-cluster'
       ZONE = 'us-central1-c'
     }
