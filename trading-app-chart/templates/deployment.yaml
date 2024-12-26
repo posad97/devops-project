@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: trading
+  name: {{ .Values.deployment.trading.name }}
+spec:
+  replicas: {{ .Values.deployment.trading.replicas }}
+  selector:
+    matchLabels:
+      app: trading
+  template:
+    metadata:
+      labels:
+        app: trading
+    spec:
+      containers:
+      - image: {{ .Values.deployment.trading.containers.image }}
+        name: {{ .Values.deployment.trading.containers.name }}
+        env:
+        {{- range $key, $value := .Values.secret.trading.data }}
+        - name: {{ $key }}
+          valueFrom:
+            secretKeyRef:
+              name: {{ $.Values.secret.trading.name }}
+              key: {{ $key }}
+        {{- end }}
+        {{- range $key, $value := .Values.secret.mysql.data }}
+        - name: {{ $key }}
+          valueFrom:
+            secretKeyRef:
+              name: {{ $.Values.secret.mysql.name }}
+              key: {{ $key }}
+        {{- end }}
+        - name: MYSQL_HOSTNAME
+          value: {{ .Values.service.mysql.name }}

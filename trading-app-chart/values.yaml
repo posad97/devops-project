@@ -1,0 +1,41 @@
+deployment:
+  trading:
+    name: trading-deployment
+    replicas: 1
+    containers:
+      name: trading-app
+      image: null
+
+
+pod:
+  mysql:
+    name: mysql
+    image: mysql:latest
+
+
+service:
+  trading:
+    name: trading-svc
+    type: NodePort
+    protocol: TCP
+    port: 5000
+    targetPort: 5000
+  mysql:
+    name: mysql-svc
+    type: ClusterIP
+    protocol: TCP
+    port: 3306
+    targetPort: 3306
+
+
+secret:
+  trading:
+    name: trading-env
+    data:
+      API_KEY: null
+      MYSQL_USER: null
+  mysql:
+    name: mysql-env
+    data:
+      MYSQL_ROOT_PASSWORD: null
+      MYSQL_DATABASE: null
