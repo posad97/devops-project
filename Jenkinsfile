@@ -60,8 +60,8 @@ pipeline {
                     string(credentialsId: 'tiingo-api-key', variable: 'API_KEY'),
                     string(credentialsId: 'db-name', variable: 'MYSQL_DATABASE')]) {
                         sh """
-                        helm upgrade \
-                        --install trading-app ./trading-app-chart \
+                        helm upgrade trading-app ./trading-app-chart \
+                        --install \
                         --set secret.trading.data.API_KEY=${API_KEY},\
                         secret.trading.data.MYSQL_USER=${MYSQL_USER},\
                         secret.mysql.data.MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD},\
