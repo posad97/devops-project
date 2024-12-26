@@ -23,17 +23,17 @@ Session(app)
 if not os.environ.get("API_KEY"):
     raise RuntimeError("API_KEY not set")
 
-if not os.environ.get("DB_HOSTNAME"):
-    raise RuntimeError("DB_HOSTNAME not set")
+if not os.environ.get("MYSQL_HOSTNAME"):
+    raise RuntimeError("MYSQL_HOSTNAME not set")
 
-if not os.environ.get("DB_USER"):
-    raise RuntimeError("DB_USER not set")
+if not os.environ.get("MYSQL_USER"):
+    raise RuntimeError("MYSQL_USER not set")
 
-if not os.environ.get("DB_PASSWORD"):
-    raise RuntimeError("DB_PASSWORD not set")
+if not os.environ.get("MYSQL_ROOT_PASSWORD"):
+    raise RuntimeError("MYSQL_ROOT_PASSWORD not set")
 
-if not os.environ.get("DB_NAME"):
-    raise RuntimeError("DB_NAME not set")
+if not os.environ.get("MYSQL_DATABASE"):
+    raise RuntimeError("MYSQL_DATABASE not set")
 
 @app.after_request
 def after_request(response):

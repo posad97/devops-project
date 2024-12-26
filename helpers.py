@@ -84,10 +84,10 @@ def db_execute(query, data=None):
     
     try:
         conn = mysql.connector.connect(
-            host = os.environ.get("DB_HOSTNAME"),      # Name of the MySQL container
-            user = os.environ.get("DB_USER"),          # MySQL user
-            password = os.environ.get("DB_PASSWORD"),  # Root password
-            database = os.environ.get("DB_NAME")       # Database name
+            host = os.environ.get("MYSQL_HOSTNAME"),      # Name of the MySQL container
+            user = os.environ.get("MYSQL_USER"),          # MySQL user
+            password = os.environ.get("MYSQL_ROOT_PASSWORD"),  # Root password
+            database = os.environ.get("MYSQL_DATABASE")       # Database name
         )
 
         cursor = conn.cursor(dictionary=True)
