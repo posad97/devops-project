@@ -59,15 +59,7 @@ pipeline {
                     withCredentials([usernamePassword(credentialsId: DB_CREDENTIALS_ID, passwordVariable: 'MYSQL_ROOT_PASSWORD', usernameVariable: 'MYSQL_USER'),
                     string(credentialsId: 'tiingo-api-key', variable: 'API_KEY'),
                     string(credentialsId: 'db-name', variable: 'MYSQL_DATABASE')]) {
-                        sh """
-                        helm upgrade trading-app ./trading-app-chart \
-                        --install \
-                        --set secret.trading.data.API_KEY=${API_KEY},\
-                        secret.trading.data.MYSQL_USER=${MYSQL_USER},\
-                        secret.mysql.data.MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD},\
-                        secret.mysql.data.MYSQL_DATABASE=${MYSQL_DATABASE},\
-                        deployment.trading.containers.image=${DOCKER_IMAGE}
-                        """
+                        sh 'helm upgrade trading-app ./trading-app-chart --install --set secret.trading.data.API_KEY=${API_KEY},secret.trading.data.MYSQL_USER=${MYSQL_USER},secret.mysql.data.MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD},secret.mysql.data.MYSQL_DATABASE=${MYSQL_DATABASE},deployment.trading.containers.image=${DOCKER_IMAGE}'
                     }
                 }
             }
