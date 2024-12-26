@@ -2,4 +2,12 @@ __pycache__
 flask-session
 Dockerfile
 github.token
-remove_image.sh
+*.sh
+README.md
+.terraform
+terraform.tfstate
+.terraform.lock.hcl
+*.tf
+Jenkinsfile
+*.yaml
+*.sql
