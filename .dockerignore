@@ -11,3 +11,4 @@ terraform.tfstate
 Jenkinsfile
 *.yaml
 *.sql
+*.png
