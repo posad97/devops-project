@@ -4,7 +4,7 @@
 - [Introduction](#introduction)
 - [Project structure](#project-structure)
 - [Setup local Git repo](#setup-local-git-repo)
-- [Application to be deployed](#application-description)
+- [Application to be deployed](#application-to-be-deployed)
 - [Setting up Jenkins](#setting-up-jenkins)
 - [Deploying GKE with Terraform](#deploying-gke-with-terraform)
 
