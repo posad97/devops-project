@@ -20,6 +20,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
+                    echo 'Building Docker image...'
                     def imageTag = "${env.APP_VERSION}"
                     env.DOCKER_IMAGE = "${IMAGE_NAME}:${imageTag}"
                     sh 'docker build -t ${DOCKER_IMAGE} .'
@@ -30,6 +31,7 @@ pipeline {
         stage('Push Image to Docker Hub') {
             steps {
                 script {
+                    echo 'Pushing image to DockerHub...'
                     withCredentials([usernamePassword(credentialsId: DOCKER_CREDENTIALS_ID, passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
                         sh 'docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}'
                         sh 'docker push ${DOCKER_IMAGE}'
@@ -41,6 +43,7 @@ pipeline {
         stage('Login to GCP and Get Kubeconfig for GKE') {
             steps {
                 script {
+                    echo 'Logging in to GCP and fetching kubeconfig file...'
                     withCredentials([file(credentialsId: 'gcloud-sa-key-file', variable: 'GCLOUD_KEY'),
                     string(credentialsId: 'gcp-project-id', variable: 'GCP_PROJECT_ID')]) {
                         sh """
@@ -56,6 +59,7 @@ pipeline {
         stage('Deploy to GKE') {
             steps {
                 script {
+                    echo 'Deploying to GKE...'
                     withCredentials([usernamePassword(credentialsId: DB_CREDENTIALS_ID, passwordVariable: 'MYSQL_ROOT_PASSWORD', usernameVariable: 'MYSQL_USER'),
                     string(credentialsId: 'tiingo-api-key', variable: 'API_KEY'),
                     string(credentialsId: 'db-name', variable: 'MYSQL_DATABASE')]) {
@@ -64,5 +68,14 @@ pipeline {
                 }
             }
         }
+
+        stage('Remove local images and empty space by deleting unused layers') {
+            steps {
+                echo 'Cleaning up...'
+                sh 'chmod +x remove_images.sh'
+                sh './remove_images.sh'
+        }
     }
+}
+
 }
