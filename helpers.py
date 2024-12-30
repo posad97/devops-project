@@ -6,7 +6,7 @@ from flask import redirect, render_template, request, session
 import mysql.connector
 from functools import wraps
 
-
+# Return screen with apology if error occurred
 def apology(message, code=400):
     """Render message as an apology to user."""
     def escape(s):
@@ -21,7 +21,7 @@ def apology(message, code=400):
         return s
     return render_template("apology.html", top=code, bottom=escape(message)), code
 
-
+# Check if user is logged in
 def login_required(f):
     """
     Decorate routes to require login.
@@ -35,7 +35,7 @@ def login_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
-
+# Get real-time stock price
 def lookup(symbol):
     """Look up quote for symbol."""
 
@@ -84,7 +84,7 @@ def db_execute(query, data=None):
     
     try:
         conn = mysql.connector.connect(
-            host = os.environ.get("MYSQL_HOSTNAME"),      # Name of the MySQL container
+            host = os.environ.get("MYSQL_HOSTNAME"),      # Name of the MySQL service on GKE
             user = os.environ.get("MYSQL_USER"),          # MySQL user
             password = os.environ.get("MYSQL_ROOT_PASSWORD"),  # Root password
             database = os.environ.get("MYSQL_DATABASE")       # Database name
@@ -93,12 +93,12 @@ def db_execute(query, data=None):
         cursor = conn.cursor(dictionary=True)
         cursor.execute(query, data)
 
-        if query.strip().upper().startswith("SELECT"):
-            rows = cursor.fetchall()
-            result = rows
+        if query.strip().upper().startswith("SELECT"): #------------------------------------------------
+            rows = cursor.fetchall()                   # Check if query is SELECT and fetchall() if true 
+            result = rows                              #------------------------------------------------
             
         else:
-            conn.commit()
+            conn.commit() # Commit changes to DB
             result = None
 
     except mysql.connector.Error as err:
@@ -107,6 +107,7 @@ def db_execute(query, data=None):
         if conn:
             conn.rollback()  # Rollback in case of error during transaction
 
+    # Close connection to DB
     finally:
         if cursor:
             cursor.close()
