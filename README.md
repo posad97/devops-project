@@ -6,12 +6,11 @@
 - [Setup local Git repo](#setup-local-git-repo)
 - [Application to be deployed](#application-to-be-deployed)
 - [Setting up Jenkins](#setting-up-jenkins)
-- [Deploying GKE with Terraform](#deploying-gke-with-terraform)
+- [Provisioning GKE with Terraform](#provisioning-gke-with-terraform)
+- [Deploying application to GKE using Helm](#deploying-application-to-gke-using-helm)
 
 ## Introduction
-In this project I will be deploying the **Flask** Trading application, which I have developed, to the **GKE** cluster on GCP. I will pre-build the GKE cluster using **Terraform**. In order to automate the processes of containerizing the application, pushing the image to the DockerHub registry and deploying to GKE I will be using **Jenkins** pipeline. The deployed application will be exposed to the Internet via the K8s LoadBalancer service. For the consistency and simplicity of working with all Kubernetes objects requiered for the application to run I will use **Helm**.
-
-> In this README I will no be covering the code of the application, CI/CD pipeline, Terraform config or Helm chart as it would overload it and will be generally unneseccary as I tried to write meaningful comments on the go. Below, I will only cover the roadblocks which I ran into while setting all stuff up and how I resolved them to compile the working environment
+In this project I will be deploying the **Flask** Trading application, which I have developed, to the **GKE** cluster on GCP. I will be provisioning the GKE cluster using **Terraform**. In order to automate the processes of containerizing the application, pushing the image to the DockerHub registry and deploying to GKE I will be using **Jenkins** pipeline. The deployed application will be exposed to the Internet via the K8s LoadBalancer service. For the consistency and simplicity of working with all Kubernetes objects requiered for the application to run I will use **Helm**.
 
 Workflow will be as following:
 
@@ -45,7 +44,21 @@ trading-app-chart/
 ```
 
 ## Setup local Git repo
-Since I am using Ubuntu, Git comes pre-installed. Only thing I needed to do was to create a token to be able to authenticate with GitHub and push my code. This is done on GitHub under `Settings` -> `Developer settings` -> `Personal access tokens` -> `Tokens (classic)`.
+Since I am using Ubuntu, Git comes pre-installed. To be able to push my code to the GitHub remote repo I needed to create PAT token. This is done on GitHub under `Settings` -> `Developer settings` -> `Personal access tokens` -> `Tokens (classic)`.
+
+In order to initialize a local Git repo, add remote GitHub repo to sync with and push my code I used below commands:
+
+```
+# Initialize local repo
+git init
+
+# Add remote repo
+git remote add origin https://github.com/posad97/devops-project.git
+
+# Push code to remote repo
+git push -u origin main
+```
+Last command will require the GitHub username and password, however, instead of password I needed to paste PAT token created earlier.
 
 ## Application to be deployed
 The application I deploy is built with Flask, which is a Python web microframework, and is essentialy a stocks trading simulator which allows users to create their trading account, charge their account with money, buy and sell company stocks, calculate devidends and access the transactions history. In order to fetch real-time stocks data, application uses free-tier [Tiingo](https://tiingo.com/) REST API. Application depends on the **MySQL** database to store the data such as usernames, passwords, users' stocks and transactions history.
@@ -145,11 +158,33 @@ jenkins
 
 Last thing I needed to finish setting up Jenkins was install the GCP service account token as a secret file to the Jenkins credentials. For that, I created the service account on GCP under `IAM & Admin` -> `Service accounts` with `Kubernetes Engine Admin` role. This generated the JSON file which I uploaded as a credential of type secret file to Jenkins.
 
-## Deploying GKE with Terraform
+## Provisioning GKE with Terraform
 Terraform relies on Application Default Credentials (ADCs) to authenticate against GCP APIs, so as a prerequisite I had to install gcloud CLI on my Ubuntu VM and run `gcloud auth application-default login` which generated the `application_default_credentials.json` file to be used by Terraform to authenticate.
 
 As this is a home project and I wanted to be conscious about free-trial budget, I created a 1-node cluster with 30GB disk running on spot instances. This should be enough, however, to test the deployment.
 
-Since I want my application to be exposed to the Internet, I will need to add a firewall rule to the default VPC that will allow ingress traffic.
+Since I want my application to be exposed to the Internet, I will need to add a firewall rule to the default VPC that will allow ingress traffic from the Internet.
+
+## Deploying application to GKE using Helm
+
+Our Helm chart consists of multiple components(templates) which will be used to deploy the application on GKE, namely:
+
+- Secrets
+- ConfigMap
+- Services
+- Deployment
+- Pod
+
+In **Secrets** we will store the environment variables that are required by Flask app and MySQL DB.
+
+In **ConfigMap** we store the schema that our MySQL DB should be configured with upon container start-up.
+
+**Deployment** will be used to deploy the Flask trading application itself. Each Pod in the deployment will mount environment variables from the corresponding secret.
+
+**Pod** deploys the MySQL container and mounts enironment variables stored in respective secret as well as ConfigMap file.
+
+Last but not least, **Services** define how our application will be exposed. **Deployment** with our Flask app will be exposed with a K8s LoadBalancer service type, which in its turn will create a pass-through Load Balancer on GCP with external IP accessible from Internet. When it comes to exposing a MySQL Pod, we don't need the DB accessible from Internet, we only need it to be accessible by the Flask application internally in VPC. Thus, we need to expose it as ClusterIP service which will allow Flask app to reach the DB using the service's name.
+
+Some values in manifest YAML files are not hardcoded and defined in `values.yaml` to be resolved dynamically during Helm runtime. Sensitive values like secrets will be defined during Jenkins pipeline execution using `--set` option of Helm. 
 
 
