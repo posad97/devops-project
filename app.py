@@ -66,6 +66,10 @@ def index():
         # Fetch ticker data from API
         ticker_data = lookup(ticker)
 
+        # If fetch from API failed - return an apology with the response status code
+        if ticker_data["status_code"] != 200:
+            return apology("Symbol does not exist", ticker_data["status_code"])
+
         # Check the current stock price
         cur_price = ticker_data["price"]
 
